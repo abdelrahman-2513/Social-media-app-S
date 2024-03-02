@@ -144,12 +144,21 @@ export class UserService {
   async removeFriend(userId: number, friendId: number): Promise<string> {
     try {
       const user: IUser = await this.userRep.findOneBy({ id: userId });
-      if (!user) return 'No user found by this id';
-      const friends: number[] = user.friends.filter(
-        (friend) => friend !== friendId,
+      const friend: IUser = await this.userRep.findOneBy({ id: friendId });
+      if (!user || !friend) return 'No user found by this id';
+
+      const userFriends: number[] = user.friends.filter(
+        (friend) => Number(friend) !== Number(friendId),
       );
-      const updatedUser: IUser = Object.assign(user, { friends });
+      const friendFriends: number[] = friend.friends.filter(
+        (friend) => Number(friend) !== Number(userId),
+      );
+      const updatedUser: IUser = Object.assign(user, { friends: userFriends });
+      const updatedFriend: IUser = Object.assign(friend, {
+        friends: friendFriends,
+      });
       await this.userRep.save(updatedUser);
+      await this.userRep.save(updatedFriend);
       return 'Removed successfully!';
     } catch (err) {
       console.log(err);

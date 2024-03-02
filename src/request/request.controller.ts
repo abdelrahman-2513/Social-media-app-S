@@ -69,4 +69,21 @@ export class RequestController {
       res.send('Try again later!').status(404);
     }
   }
+  @Post('/removeFriend/:friendId')
+  async removeFriend(
+    @Param('friendId') friendId: number,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    try {
+      const removedMessage: string = await this.requestSVC.removeFriend(
+        req['user'].id,
+        friendId,
+      );
+      return res.send(removedMessage).status(200);
+    } catch (err) {
+      console.log(err);
+      res.send('Try again later!').status(404);
+    }
+  }
 }

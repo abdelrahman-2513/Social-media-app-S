@@ -4,6 +4,7 @@ import { Conversation } from './entities/conversation.entity';
 import { Repository } from 'typeorm';
 import { CreateConversationDTO, UpdateConversationDTO } from './dtos';
 import { IConversation } from './interfaces/conversation.interface.dto';
+import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class ConversationService {
@@ -23,6 +24,10 @@ export class ConversationService {
     try {
       const newConversation: Conversation = new Conversation();
       newConversation.name = convers.name;
+      newConversation.type = convers.type;
+      newConversation.participants = convers.participantsId.map(
+        (id) => ({ id }) as User,
+      );
       return await this.conversationRepo.save(newConversation);
     } catch (err) {
       console.log(err);
@@ -107,6 +112,81 @@ export class ConversationService {
     } catch (err) {
       console.log(err);
       throw new Error('No conversations to be deleted!');
+    }
+  }
+  /**
+   * This function is used to find user conversations
+   * @Param userId:number
+   * returns userConversations:Iconversation
+   */
+  async getUserConversations(userId: number): Promise<IConversation[]> {
+    try {
+      const userConversations: IConversation[] = await this.conversationRepo
+        .createQueryBuilder('conversation')
+        .innerJoin('conversation.participants', 'user')
+        .where('user.id = :userId', { userId })
+        .getMany();
+      return userConversations;
+    } catch (err) {
+      console.log(err);
+      throw new Error('Connot get conversations now!');
+    }
+  }
+
+  /**
+   * This function is used to add user to a conversation
+   * @Param conversationId:number
+   * @Param updateConv:UpdateConversationDTO
+   * returns added
+   */
+  async addUserToConversation(
+    conversationId: number,
+    updateConv: UpdateConversationDTO,
+  ): Promise<string> {
+    try {
+      const foundConversation: IConversation =
+        await this.conversationRepo.findOneBy({ id: conversationId });
+      if (!foundConversation) return 'No conversation by this id';
+      const newUser: User[] = updateConv.participantsId.map(
+        (id) => ({ id }) as User,
+      );
+      foundConversation.participants = [
+        ...foundConversation.participants,
+        ...newUser,
+      ];
+      await this.conversationRepo.save(foundConversation);
+      return 'Added';
+    } catch (err) {
+      console.log(err);
+      throw new Error('Cannot add user to this conversation');
+    }
+  }
+
+  /**
+   * This function is used to remove a user from the conversation
+   * @Param conversationId:number
+   * @Param userId:number
+   * return string
+   */
+  async removeUserFromConversation(
+    convId: number,
+    userId: number,
+  ): Promise<string> {
+    try {
+      const foundedConversation: IConversation =
+        await this.conversationRepo.findOneBy({ id: convId });
+      if (!foundedConversation) return 'No conversation Found!';
+      const userIndex: number = foundedConversation.participants.findIndex(
+        (participant) => participant.id == userId,
+      );
+
+      if (userIndex == -1) return 'User isnot in this conversation';
+      foundedConversation.participants.splice(userIndex, 1);
+      await this.conversationRepo.save(foundedConversation);
+      return 'Removed!';
+    } catch (err) {
+      console.log(err);
+      throw new Error('Cannot Remove User now!');
     }
   }
 }

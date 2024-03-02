@@ -119,6 +119,30 @@ export class RequestService {
     }
   }
   /**
+   * This function is used to remove friend
+   * @param usreId:number
+   * @param frienId:number
+   * return string
+   */
+  async removeFriend(userId: number, friendId: number): Promise<string> {
+    try {
+      const acceptedRequest: IRequest = await this.requestRepostiry
+        .createQueryBuilder('request')
+        .where(
+          '(request.fromUserId = :userId OR request.toUserId = :userId) AND (request.fromUserId = :friendId OR request.toUserId = :friendId)',
+          { userId, friendId },
+        )
+        .getOne();
+      if (!acceptedRequest) return 'No accepted request by this data!';
+      await this.userSVC.removeFriend(userId, friendId);
+      await this.deleteRequest(acceptedRequest.id);
+      return 'Removed';
+    } catch (err) {
+      console.log(err);
+      throw new Error('Cannot remove friend now!');
+    }
+  }
+  /**
    * This function is Used delete a request
    * @Param requestId:number
    * returns acceptance message

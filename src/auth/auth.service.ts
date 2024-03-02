@@ -104,6 +104,7 @@ export class AuthService {
   // Generate access token
   private generateAccessToken(user: IUser): string {
     const ATPayload: ATPayload = {
+      id: user.id,
       email: user.email,
       role: user.role,
     };
@@ -117,6 +118,7 @@ export class AuthService {
   // Generate refresh token
   private generateRefreshToken(user: IUser): string {
     const ATPayload: ATPayload = {
+      id: user.id,
       email: user.email,
       role: user.role,
     };
