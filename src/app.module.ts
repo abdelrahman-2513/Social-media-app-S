@@ -10,6 +10,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConversationModule } from './conversation/conversation.module';
 import { WebsocketModule } from './websocket/websocket.module';
 import { RequestModule } from './request/request.module';
+import { MessageModule } from './message/message.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { RequestModule } from './request/request.module';
     ConversationModule,
     WebsocketModule,
     RequestModule,
+    MessageModule,
   ],
   controllers: [AppController],
   providers: [AppService],

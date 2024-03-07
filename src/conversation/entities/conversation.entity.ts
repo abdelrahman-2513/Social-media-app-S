@@ -1,4 +1,5 @@
 import { Econversation } from 'src/auth/enums';
+import { Message } from 'src/message/entities/message.entity';
 import { User } from 'src/user/entities/user.entity';
 import {
   Column,
@@ -8,6 +9,7 @@ import {
   JoinColumn,
   JoinTable,
   ManyToMany,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -36,4 +38,7 @@ export class Conversation {
   @ManyToMany(() => User, { eager: true })
   @JoinTable()
   participants: User[];
+
+  @OneToMany(() => Message, (message) => message.conversation, { eager: true })
+  messages: Message[];
 }
