@@ -167,6 +167,29 @@ export class UserService {
   }
 
   /**
+   * This function is used to update user Password
+   * @Param newPassword:string
+   * return updatedUser
+   */
+  async updatePasswordByEmail(
+    newPAssword: string,
+    email: string,
+  ): Promise<IUser> {
+    try {
+      const user = await this.userRep.findOneBy({ email: email });
+      if (!user) throw new Error('User not found');
+      const hashedPassword = await this.hashPassword(newPAssword);
+      const updatedUser: IUser = Object.assign(user, {
+        password: hashedPassword,
+      });
+      return await this.userRep.save(updatedUser);
+    } catch (err) {
+      console.log(err);
+      throw new Error('Cannot update password!');
+    }
+  }
+
+  /**
    * This function is used to hashing the password of the user
    * @Param password that the user enterd
    * returns the hashed password

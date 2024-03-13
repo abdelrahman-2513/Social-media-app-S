@@ -8,11 +8,13 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UserService } from '../user/user.service';
 import { AuthedUser } from './types';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 
 import { ATPayload } from './payloads/AT.payload';
 import { IUser } from '../user/interfaces/user.interface';
 import { SignupDTO } from './dtos/register.dto';
+import { UpdateUserDTO } from 'src/user/dtos';
+import { UpdatePasswordDTO } from './dtos/password.dto';
 
 @Injectable()
 export class AuthService {
@@ -67,6 +69,51 @@ export class AuthService {
     } catch (err) {
       console.log(err);
       throw new InternalServerErrorException(err);
+    }
+  }
+
+  async UpdateMe(userData: UpdateUserDTO, req: Request) {
+    try {
+      const { email } = req['user'];
+      const user = await this.userSVC.findUserByEmail(email);
+
+      if (!user) throw new UnauthorizedException('No user by this email!');
+      const updatedUser: IUser = await this.userSVC.updateUserByEmail(
+        email,
+        userData,
+      );
+
+      return updatedUser;
+    } catch (err) {
+      console.log(err);
+      throw new Error('Cannot update user!');
+    }
+  }
+
+  async UpdateMyPassword(passwordData: UpdatePasswordDTO, req: Request) {
+    try {
+      const { email } = req['user'];
+      const user = await this.userSVC.findUserByEmail(email);
+
+      if (!user) throw new UnauthorizedException('No user by this email!');
+      if (passwordData.newPassword !== passwordData.confirmPassword)
+        throw new Error('Passwords Not matched');
+      const verified = await this.verifyHash(
+        passwordData.currentPassword,
+        user.password,
+      );
+
+      if (!verified) throw new UnauthorizedException('Wrong password!');
+
+      const updatedUser = await this.userSVC.updatePasswordByEmail(
+        passwordData.newPassword,
+        email,
+      );
+
+      return updatedUser;
+    } catch (err) {
+      console.log(err.message);
+      throw new Error(err.message);
     }
   }
 
