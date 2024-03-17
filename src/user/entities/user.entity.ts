@@ -1,8 +1,10 @@
 import { EGender, ERole } from 'src/auth/enums';
+import { Post } from 'src/post/entities/post.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryColumn,
   PrimaryGeneratedColumn,
   Unique,
@@ -35,4 +37,6 @@ export class User {
   password: string;
   @Column({ type: 'int', nullable: false })
   age: number;
+  @OneToMany(() => Post, (post) => post.user, { eager: true })
+  posts: Post[];
 }

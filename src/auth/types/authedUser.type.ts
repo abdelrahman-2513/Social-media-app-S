@@ -1,3 +1,4 @@
+import { Post } from 'src/post/entities/post.entity';
 import { IUser } from 'src/user/interfaces';
 
 export class LoggedUser implements IUser {
@@ -11,6 +12,7 @@ export class LoggedUser implements IUser {
   friends?: number[];
   image?: string;
   created_at?: Date;
+  posts?: Post[];
 
   constructor(user: IUser) {
     this.id = user.id;
@@ -23,6 +25,7 @@ export class LoggedUser implements IUser {
     this.created_at = user.created_at;
     this.friends = user.friends;
     this.age = user.age;
+    this.posts = user.posts;
   }
 }
 export class AuthedUser {

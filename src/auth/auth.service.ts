@@ -15,6 +15,10 @@ import { IUser } from '../user/interfaces/user.interface';
 import { SignupDTO } from './dtos/register.dto';
 import { UpdateUserDTO } from 'src/user/dtos';
 import { UpdatePasswordDTO } from './dtos/password.dto';
+import * as sharp from 'sharp';
+import * as path from 'path';
+import * as fs from 'fs';
+import { resizeImage } from './functions/resize.profile.photo';
 
 @Injectable()
 export class AuthService {
@@ -72,12 +76,23 @@ export class AuthService {
     }
   }
 
-  async UpdateMe(userData: UpdateUserDTO, req: Request) {
+  async UpdateMe(
+    userData: UpdateUserDTO,
+    file: Express.Multer.File,
+    req: Request,
+  ) {
     try {
       const { email } = req['user'];
       const user = await this.userSVC.findUserByEmail(email);
 
       if (!user) throw new UnauthorizedException('No user by this email!');
+
+      if (file) {
+        file.filename = `${email.split('@')[0]}-${Date.now()}.${file.mimetype.split('/')[1]}`;
+        await resizeImage(file);
+        userData.image = `${req.protocol}://${req.get('host')}/user-images/${file.filename}`;
+      }
+      console.log(userData);
       const updatedUser: IUser = await this.userSVC.updateUserByEmail(
         email,
         userData,

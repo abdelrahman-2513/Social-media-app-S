@@ -28,6 +28,7 @@ export class UserService {
       newUser.role = createUserDTO.role;
       newUser.gender = createUserDTO.gender;
       newUser.password = await this.hashPassword(createUserDTO.password);
+      newUser.posts = [];
       if (createUserDTO.image) newUser.image = createUserDTO.image;
 
       return this.userRep.save(newUser);
@@ -82,6 +83,20 @@ export class UserService {
     try {
       const users = await this.userRep.find();
       return users;
+    } catch (err) {
+      console.log(err);
+      throw new Error('Cannot Find users now!');
+    }
+  }
+  /**
+   * This function is used to find user by id
+   * @param userId:number
+   * returns users
+   */
+  async findUserById(userId: number): Promise<IUser> {
+    try {
+      const user = await this.userRep.findOneBy({ id: userId });
+      return user;
     } catch (err) {
       console.log(err);
       throw new Error('Cannot Find users now!');

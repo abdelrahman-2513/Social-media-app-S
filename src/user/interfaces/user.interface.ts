@@ -1,3 +1,6 @@
+import { Conversation } from 'src/conversation/entities/conversation.entity';
+import { Post } from 'src/post/entities/post.entity';
+
 export interface IUser {
   id?: number;
   name?: string;
@@ -9,4 +12,5 @@ export interface IUser {
   friends?: number[];
   password?: string;
   age?: number;
+  posts?: Post[];
 }

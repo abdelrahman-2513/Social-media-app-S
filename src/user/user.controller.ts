@@ -1,7 +1,8 @@
-import { Body, Controller, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Res } from '@nestjs/common';
 import { CreateUserDTO } from './dtos';
 import { Response } from 'express';
 import { UserService } from './user.service';
+import { IUser } from './interfaces';
 
 @Controller('user')
 export class UserController {
@@ -13,6 +14,17 @@ export class UserController {
       response.send(newUser).status(201);
     } catch (err) {
       response.send(err.message).status(404);
+    }
+  }
+
+  @Get('/:id')
+  async getUser(@Param('id') userId: number, @Res() response: Response) {
+    try {
+      const user: IUser = await this.UserSVC.findUserById(userId);
+      response.status(200).send(user);
+    } catch (err) {
+      console.log(err);
+      response.status(404).send(err.message);
     }
   }
 }
