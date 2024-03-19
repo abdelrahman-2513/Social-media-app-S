@@ -15,6 +15,8 @@ import { MulterModule } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { multerOptions } from './auth/configs/multer.config';
 import { PostModule } from './post/post.module';
+import { LikeModule } from './like/like.module';
+import { CommentModule } from './comment/comment.module';
 
 @Module({
   imports: [
@@ -31,6 +33,8 @@ import { PostModule } from './post/post.module';
     RequestModule,
     MessageModule,
     PostModule,
+    LikeModule,
+    CommentModule,
   ],
   controllers: [AppController],
   providers: [AppService],
