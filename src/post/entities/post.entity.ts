@@ -1,3 +1,5 @@
+import { Comment } from 'src/comment/entities/comment.entity';
+import { Like } from 'src/like/entities/like.entity';
 import { User } from 'src/user/entities/user.entity';
 import {
   Column,
@@ -31,5 +33,8 @@ export class Post {
   @JoinTable()
   user: User;
 
-  // @OneToMany()
+  @OneToMany(() => Comment, (comment) => comment.post, { eager: true })
+  comments: Comment[];
+  @OneToMany(() => Like, (like) => like.post, { eager: true })
+  likes: Like[];
 }
