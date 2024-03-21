@@ -29,8 +29,15 @@ export class PostService {
       newPost.content = postData.content;
       newPost.user = req['user'].id as unknown as User;
       newPost.userId = req['user'].id;
+      await this.postRep.save(newPost);
 
-      return await this.postRep.save(newPost);
+      return await this.postRep
+        .createQueryBuilder('post')
+        .leftJoinAndSelect('post.user', 'user')
+        .select(['post', 'user.name', 'user.image'])
+        .where('post.content =:content', { content: postData.content })
+        .orderBy('post.created_at', 'DESC')
+        .getOne();
     } catch (err) {
       console.log(err);
       throw new Error('Cannot create Post!');
@@ -48,7 +55,14 @@ export class PostService {
       const post = await this.postRep.findOneBy({ id: postId });
       if (!post) throw new Error('No post found!');
       post.content = postData.content;
-      return await this.postRep.save(post);
+
+      await this.postRep.save(post);
+      return await this.postRep
+        .createQueryBuilder('post')
+        .innerJoinAndSelect('post.user', 'user')
+        .select(['post', 'user.name', 'user.image', 'post.comments'])
+        .where('post.id = :postId ', { postId })
+        .getOne();
     } catch (err) {
       console.log(err);
       throw new Error(err.message);
@@ -86,6 +100,8 @@ export class PostService {
       const offset = (page - 1) * pageSize;
       const feeds: IPost[] = await this.postRep
         .createQueryBuilder('post')
+        .leftJoinAndSelect('post.user', 'user')
+        .select(['post', 'user.name', 'user.image'])
         .where('post.userId IN (:...friends)', { friends })
         .orderBy('post.created_at', 'DESC')
         .offset(offset)

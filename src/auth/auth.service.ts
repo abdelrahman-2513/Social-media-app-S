@@ -56,7 +56,7 @@ export class AuthService {
       //   return authedUser;
     } catch (err) {
       console.log(err);
-      throw new InternalServerErrorException(err);
+      throw new InternalServerErrorException(err.message);
     }
   }
 

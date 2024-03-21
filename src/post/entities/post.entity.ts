@@ -29,6 +29,7 @@ export class Post {
     (user) => {
       user.posts;
     },
+    // { eager: true },
   )
   @JoinTable()
   user: User;

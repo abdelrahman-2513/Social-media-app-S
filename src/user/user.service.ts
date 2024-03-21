@@ -44,6 +44,7 @@ export class UserService {
    */
 
   async findUserByEmail(email: string): Promise<IUser> {
+    console.log(email);
     try {
       return await this.userRep.findOneBy({ email });
     } catch (err) {

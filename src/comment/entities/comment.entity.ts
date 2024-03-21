@@ -14,9 +14,8 @@ export class Comment {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, { eager: true })
-  @JoinColumn()
-  user: User;
+  @ManyToOne(() => User, { lazy: true })
+  user: Promise<User>;
 
   @ManyToOne(() => Post, (post) => post.comments)
   post: Post;
