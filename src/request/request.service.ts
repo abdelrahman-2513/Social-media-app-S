@@ -47,6 +47,7 @@ export class RequestService {
           'request',
           'fromUser.name',
           'fromUser.email',
+          'fromUser.image',
           'toUser.email',
           'toUser.name',
         ])
@@ -106,6 +107,7 @@ export class RequestService {
         request.toUserId,
       );
       if (accepted) {
+        console.log(accepted);
         const updatedRequest: IRequest = Object.assign(request, {
           accepted: true,
         });
@@ -148,6 +150,7 @@ export class RequestService {
    * returns acceptance message
    */
   async deleteRequest(requestId: number) {
+    console.log('from delete request');
     try {
       const request: IRequest = await this.requestRepostiry.findOneBy({
         id: requestId,

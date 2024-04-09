@@ -60,7 +60,7 @@ export class PostService {
       return await this.postRep
         .createQueryBuilder('post')
         .innerJoinAndSelect('post.user', 'user')
-        .select(['post', 'user.name', 'user.image', 'post.comments'])
+        .select(['post', 'user.name', 'user.image'])
         .where('post.id = :postId ', { postId })
         .getOne();
     } catch (err) {
@@ -121,7 +121,12 @@ export class PostService {
    */
   async getUserPosts(userId: number): Promise<IPost[]> {
     try {
-      const userPosts: IPost[] = await this.postRep.findBy({ userId });
+      const userPosts: IPost[] = await this.postRep
+        .createQueryBuilder('post')
+        .innerJoinAndSelect('post.user', 'user')
+        .select(['post', 'user.name', 'user.image'])
+        .where('user.id = :userId ', { userId })
+        .getMany();
       return userPosts;
     } catch (err) {
       console.log(err);

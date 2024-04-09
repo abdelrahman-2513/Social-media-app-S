@@ -76,6 +76,7 @@ export class RequestController {
     @Res() res: Response,
   ) {
     try {
+      console.log('from friend remove ', friendId);
       const removedMessage: string = await this.requestSVC.removeFriend(
         req['user'].id,
         friendId,
