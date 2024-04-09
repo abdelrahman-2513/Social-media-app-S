@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDTO, UpdateUserDTO } from './dtos';
 import { IUser } from './interfaces';
+import { Request } from 'express';
 
 @Injectable()
 export class UserService {
@@ -96,7 +97,11 @@ export class UserService {
    */
   async findUserById(userId: number): Promise<IUser> {
     try {
-      const user = await this.userRep.findOneBy({ id: userId });
+      const user = await this.userRep
+        .createQueryBuilder('user')
+        .leftJoinAndSelect('user.posts', 'post') // Left join to load posts
+        .where('user.id = :userId', { userId })
+        .getOne();
       return user;
     } catch (err) {
       console.log(err);
@@ -175,6 +180,7 @@ export class UserService {
       });
       await this.userRep.save(updatedUser);
       await this.userRep.save(updatedFriend);
+
       return 'Removed successfully!';
     } catch (err) {
       console.log(err);
@@ -205,6 +211,48 @@ export class UserService {
     }
   }
 
+  /**
+   * This funciton is used to search for users
+   * @Param searchQuery:string
+   * returns avilable user depending on this query
+   */
+
+  async searchUsersByName(searchQuery: string, req: Request): Promise<IUser[]> {
+    try {
+      const users: IUser[] = await this.userRep
+        .createQueryBuilder('user')
+        .where('user.name ILIKE :name AND user.id <> :id', {
+          name: `%${searchQuery}%`,
+          id: req['user'].id,
+        })
+        .getMany();
+      return users;
+    } catch (err) {
+      console.log(err);
+      throw new Error('Cannot update password!');
+    }
+  }
+
+  /**
+   * This function is used to get the user Friends
+   * @param userId:number
+   * returns User[]
+   */
+  async getUserFriends(userID: number): Promise<IUser[]> {
+    try {
+      const user: IUser = await this.userRep.findOneBy({ id: userID });
+      if (!user) throw new Error('no user bu this Id!');
+      const friends: IUser[] = await this.userRep.find({
+        where: {
+          id: In(user.friends || []),
+        },
+        select: ['id', 'name', 'image'],
+      });
+      return friends;
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
   /**
    * This function is used to hashing the password of the user
    * @Param password that the user enterd
