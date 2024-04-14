@@ -6,6 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDTO, UpdateUserDTO } from './dtos';
 import { IUser } from './interfaces';
 import { Request } from 'express';
+import { ConversationService } from 'src/conversation/conversation.service';
 
 @Injectable()
 export class UserService {

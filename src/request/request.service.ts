@@ -5,11 +5,16 @@ import { Repository } from 'typeorm';
 import { CreateRequestDTO } from './dtos';
 import { IRequest } from './interfaces/request.interface';
 import { UserService } from 'src/user/user.service';
+import { ConversationService } from 'src/conversation/conversation.service';
+import { CreateConversationDTO } from 'src/conversation/dtos';
+import { Econversation } from 'src/auth/enums';
 
 @Injectable()
 export class RequestService {
   constructor(
     private readonly userSVC: UserService,
+    private readonly conversationSVC: ConversationService,
+
     @InjectRepository(Request) private requestRepostiry: Repository<Request>,
   ) {}
 
@@ -62,6 +67,7 @@ export class RequestService {
           'request',
           'fromUser.name',
           'fromUser.email',
+          'fromUser.image',
           'toUser.email',
           'toUser.name',
         ])
@@ -108,6 +114,12 @@ export class RequestService {
       );
       if (accepted) {
         console.log(accepted);
+        const conv: CreateConversationDTO = {
+          participantsId: [request.fromUserId, request.toUserId],
+          type: Econversation.DIRECT,
+          name: 'Friend',
+        };
+        await this.conversationSVC.createConversation(conv);
         const updatedRequest: IRequest = Object.assign(request, {
           accepted: true,
         });

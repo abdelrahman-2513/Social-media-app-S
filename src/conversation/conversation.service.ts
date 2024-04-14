@@ -124,7 +124,9 @@ export class ConversationService {
       const userConversations: IConversation[] = await this.conversationRepo
         .createQueryBuilder('conversation')
         .innerJoin('conversation.participants', 'user')
-        .where('user.id = :userId', { userId })
+        .leftJoinAndSelect('conversation.participants', 'users')
+        .where('user.id = :userId AND users.id != :userId', { userId })
+        .select(['conversation', 'users.name', 'users.image', 'users.id'])
         .getMany();
       return userConversations;
     } catch (err) {
