@@ -87,4 +87,14 @@ export class MessageController {
       res.send('Cannot update messages!').status(404);
     }
   }
+  @Get('/conversationMessages/:id')
+  async getNewestMessages(@Param('id') id: string, @Res() res: Response) {
+    try {
+      const newwestMessages = await this.msgSVC.findNewestByConvId(Number(id));
+      res.send(newwestMessages).status(200);
+    } catch (err) {
+      console.log(err);
+      res.send('Cannot update messages!').status(404);
+    }
+  }
 }

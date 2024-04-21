@@ -11,7 +11,12 @@ import { Server, Socket } from 'socket.io';
 import { MessageService } from '../message.service';
 import { CreateMessageDTO } from '../dtos';
 
-@WebSocketGateway()
+@WebSocketGateway({
+  cors: {
+    origin: '*',
+  },
+  // port: 5000,
+})
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;

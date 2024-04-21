@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -7,6 +7,7 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
+import * as cors from 'cors';
 import { ConversationModule } from './conversation/conversation.module';
 import { WebsocketModule } from './websocket/websocket.module';
 import { RequestModule } from './request/request.module';
@@ -43,4 +44,9 @@ export class AppModule {
   // configure(consumer: MiddlewareConsumer) {
   //   consumer.apply(UserImagesMiddleware).forRoutes('/user-images');
   // }
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(cors({ origin: '*', credentials: true }))
+      .forRoutes({ path: '*', method: RequestMethod.ALL });
+  }
 }

@@ -56,7 +56,7 @@ export class MessageService {
     try {
       const messages: IMessage[] = await this.messageRep
         .createQueryBuilder('message')
-        .leftJoinAndSelect('conversation', 'conv')
+        .innerJoinAndSelect('conversation', 'conv')
         .where('conv.id = :convId', { convId })
         .getMany();
       return messages;
@@ -135,5 +135,15 @@ export class MessageService {
       console.log(err);
       throw new Error('Cannot delete messages for the given conversation ID!');
     }
+  }
+  async findNewestByConvId(convId: number): Promise<IMessage[]> {
+    return await this.messageRep
+      .createQueryBuilder('message')
+      .leftJoinAndSelect('message.user', 'user') // Eagerly load the 'user' relation
+      .where('message.conversationid = :convId', { convId })
+      .orderBy('message.id', 'DESC')
+      .select(['message', 'user.name', 'user.image', 'user.id'])
+      .take(50)
+      .getMany();
   }
 }
