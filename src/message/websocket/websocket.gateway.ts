@@ -53,6 +53,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const msgData = JSON.parse(payload.toString());
     console.log(msgData);
     const message = await this.messageService.createMessage(msgData);
+    Object.assign(message, { user: { id: message.user } });
+    console.log(message);
     this.server
       .to(message.conversationId.toString())
       .emit('newMessage', message);
