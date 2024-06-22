@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Res,
 } from '@nestjs/common';
 import { CreateMessageDTO, UpdateMessageDTO } from './dtos';
@@ -39,10 +40,16 @@ export class MessageController {
   @Get('conversation/:convId')
   async getConvbersationMessages(
     @Param('convId') id: number,
+    @Query('page') page: number = 1,
+    @Query('pageSize') pageSize: number = 10,
     @Res() res: Response,
   ) {
     try {
-      const messages = await this.msgSVC.getConversationMessage(Number(id));
+      const messages = await this.msgSVC.getConversationMessage(
+        Number(id),
+        page,
+        pageSize,
+      );
       res.send(messages).status(200);
     } catch (err) {
       console.log(err);
@@ -88,9 +95,18 @@ export class MessageController {
     }
   }
   @Get('/conversationMessages/:id')
-  async getNewestMessages(@Param('id') id: string, @Res() res: Response) {
+  async getNewestMessages(
+    @Param('id') id: string,
+    @Res() res: Response,
+    @Query('page') page: number = 1,
+    @Query('pageSize') pageSize: number = 10,
+  ) {
     try {
-      const newwestMessages = await this.msgSVC.findNewestByConvId(Number(id));
+      const newwestMessages = await this.msgSVC.findNewestByConvId(
+        Number(id),
+        page,
+        pageSize,
+      );
       res.send(newwestMessages).status(200);
     } catch (err) {
       console.log(err);

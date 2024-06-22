@@ -52,12 +52,20 @@ export class MessageService {
    * @Param convId:number
    * return messageData:IMessage
    */
-  async getConversationMessage(convId: number): Promise<IMessage[]> {
+  async getConversationMessage(
+    convId: number,
+    page: number,
+    pageSize: number,
+  ): Promise<IMessage[]> {
     try {
+      const offset = (page - 1) * pageSize;
       const messages: IMessage[] = await this.messageRep
         .createQueryBuilder('message')
         .innerJoinAndSelect('conversation', 'conv')
         .where('conv.id = :convId', { convId })
+        .orderBy('message.created_at', 'DESC')
+        .offset(offset)
+        .limit(pageSize)
         .getMany();
       return messages;
     } catch (err) {
@@ -136,14 +144,20 @@ export class MessageService {
       throw new Error('Cannot delete messages for the given conversation ID!');
     }
   }
-  async findNewestByConvId(convId: number): Promise<IMessage[]> {
+  async findNewestByConvId(
+    convId: number,
+    page,
+    pageSize,
+  ): Promise<IMessage[]> {
+    const offset = (page - 1) * pageSize;
     return await this.messageRep
       .createQueryBuilder('message')
       .leftJoinAndSelect('message.user', 'user') // Eagerly load the 'user' relation
       .where('message.conversationid = :convId', { convId })
       .orderBy('message.id', 'DESC')
       .select(['message', 'user.name', 'user.image', 'user.id'])
-      .take(50)
+      .offset(offset)
+      .limit(pageSize)
       .getMany();
   }
 }
